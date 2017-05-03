@@ -8,8 +8,10 @@ import mongoDB_support
 
 # under mode 'strict', fuse can only operate on hard relations
 # under mode 'graph', fuse can operate on all relations, but may lead to problems
-fuse_mode = 'strict'   
+fuse_mode = 'old_style'   
 
+# search distance
+max_distance = 100
 
 def get_node_name(path):
     if(path[0] == '/'):
@@ -19,28 +21,22 @@ def get_node_name(path):
         name = path
     return name
 
-
-def get_node_id(name):
-    node_id = name.split('_')
-    node_id = node_id[len(node_id)-1]
-    return int(node_id)
-
-
 def stimulate_by_fuse(path):
-    name = get_node_name(path)
-    if fuse_mode == 'strict':
-        node_id = get_node_id(name)
-        id_ls = neo4j_support.find_adj_nodes(node_id, 'hard_relation')
+    if fuse_mode == 'old_style':
+        node_id = neo4j_support.id_map(path, 'old_style')
+        id_ls = neo4j_support.find_adj_nodes(node_id, 'hard_relation', 'old_fs_node')
     elif fuse_mode == 'graph':
-        id_ls = neo4j_support.stimulate(name)
+        node_id = neo4j_support.id_map(path, 'graph')
+        id_ls = neo4j_support.stimulate(node_id, max_distance, 'nolimit', 'nolimit')
     else:
         print "fuse_mode error"
         exit(1)
+    name_ls = neo4j_support.get_nodes_name(id_ls)
+    return name_ls
 
 
 def is_dir(path):
-    name = get_node_name(path)
-    node_id = get_node_id(name)
+    node_id = neo4j_support.id_map(path, fuse_mode)
     ppt = neo4j_support.get_node_properties(node_id)
     if ppt == 'file':
         return False
@@ -48,8 +44,7 @@ def is_dir(path):
         return True
 
 def get_file(path):
-    name = get_node_name(path)
-    node_id = get_node_id(name)
+    node_id = neo4j_support.id_map(path, fuse_mode)
     return mongoDB_support.get_file(node_id)
 
 
