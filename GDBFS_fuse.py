@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#-*- coding:utf-8 -*-
 
 try:
     from fuse import FUSE, FuseOSError, Operations, LoggingMixIn, fuse_get_context
@@ -33,22 +34,36 @@ class GDBFSfuse(LoggingMixIn, Operations):
             st = dict(st_mode=(S_IFDIR | 0755), st_nlink=2)
         else:
             file = GDBFS.get_file(path)
-            if file:
-                st = dict(st_mode=(S_IFREG | 0444), st_size=file.length)
+            if file.is_exist():
+                st = dict(st_mode=(S_IFREG | 0444), st_size=file.length())
             else:
                 raise FuseOSError(ENOENT)
         st['st_ctime'] = st['st_mtime'] = st['st_atime'] = time()
         st['st_uid'], st['st_gid'], pid = fuse_get_context()
+        print "\n\nin getattr, path =",path,"\nst =", st
         return st
 
     def read(self, path, size, offset, fh):
+        print "\n\nin fuse read, fh =", fh
         file = GDBFS.get_file(path)
-        os_SEEK_SET=0       #这里由样例可查具体是 os.SEEK_SET 应该是mongoDB支持的，这里只是代替一写
-        if file:
-            file.seek(offset, os_SEEK_SET)
-            return file.read(size)
+        os_SEEK_SET = 0       # 这里由样例可查具体是 os.SEEK_SET 应该是mongoDB支持的，这里只是代替一写
+        if file.is_exist():
+            data = file.read(size, offset)
+            print "\n\nfuse read:",data
+            return data
         else:
             raise FuseOSError(ENOENT)
+
+    def create(self, path, mode):
+        return GDBFS.create_node_fuse('file', path)
+
+    def mkdir(self, path, mode):
+        GDBFS.create_node_fuse('attribute', path)
+
+    def write(self, path, data, offset, fh):
+        GDBFS.write(path,data,offset)
+        return len(data)
+
 
     # Disable unused operations:
     access = None
@@ -64,7 +79,7 @@ class GDBFSfuse(LoggingMixIn, Operations):
 
 def show_usage():
     print('''
-usage: %s [<mountpoint>
+usage: %s [<mountpoint> 
     ''' % argv[0])
     exit(1)
 
