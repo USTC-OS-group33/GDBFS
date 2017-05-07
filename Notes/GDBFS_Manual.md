@@ -59,7 +59,7 @@ python loopback.py <mountpoint>
 
 在文件夹`fake_database`下的文件是数据库的内容：
 
-* `fake_neo4j` 中使用简单文本的方式表示节点与节点关系，如果你看懂了这个格式（应该看过我们的Design note 后都能看懂），你可以自己添加节点关系。
+* `fake_neo4j` 中使用简单文本的方式表示节点与节点关系，使用正则匹配来代替数据库的搜寻功能。如果你看懂了这个表达格式（应该看过我们的Design note 后都能看懂），你可以自己添加节点关系。
 
 * `fake_mongoDB` 中就是各个文件的实体，文件名为在 `fake_neo4j`中对应的id。
 
