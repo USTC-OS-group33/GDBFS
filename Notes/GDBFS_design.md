@@ -19,19 +19,24 @@
 	{ 
 		Label: 
 		{
-			name, length, mtime, mtime, atime, id, key_to_find_in_mongoDB …
+		    File
 		}
 		Property:
-			Files
+		{
+		    
+			name, length, mtime, mtime, atime, id, key_to_find_in_mongoDB …
+		}
+			
 	}
-		(关于文件节点，property 就是File应该没什么问题，其他都是label ）
+	
 
 	2. 属性节点：
 	{
 		 Property：
+		    Attribute, 如 学习用途 我喜欢的 欧美流行 等等
+		 Label：
 			属性层的名字，如 用途层 自定义层 音乐层 等等
-		Label：
-			Attribute, 如 学习用途 我喜欢的 欧美流行 等等
+			
 	}
 
 
@@ -39,26 +44,26 @@
 
 
 
-关系分为两种，硬关系以及软关系。
+关系分为两种，静态关系以及动态关系。
 		
-	1. 硬关系：
+	1. Static Relationship：
 	{
+		Type:
+			Static
 		Property:
-			Hard Relation
-		Label:
 			Distance ( integer )
 	}
 
-	2. 软关系：
+	2. Dynamic Relationship：
 	{
+		Type:
+			Dynamic
 		Property:
-			Soft Relation
-		Label:
 			Distance ( integer )
 	}
 
-关系之所以区分两类，是因为希望硬关系不被删掉，而软关系可以随使用过程而增加和减少。
-	硬关系存在于：
+关系之所以区分两类，是因为希望静态关系不被删掉，而动态关系可以随使用过程而增加和减少。
+	动态关系存在于：
 		1. 文件夹间的从属关系。这是当然不能随意删掉的。
 		2. 每一层属性层上的基本公认关系。这是我们不希望被删掉的。
 
