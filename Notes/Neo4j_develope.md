@@ -16,11 +16,14 @@ property是一个[字符串:值]对,其中值可以是其他基本数据类型.
 
     Node:
         1. File Node:
-            label: "File"
+            label: "file"
             property: name,length,id,etc
         2. Attribute Node:
-            label: attribute name
-            property: ???
+            label: "attribute"
+            property: attribute name, attribute
+        3. Category Node:
+            label: "category"
+            property: category name
     
     Relationship:
         1. Static Relationship:
@@ -35,4 +38,4 @@ property是一个[字符串:值]对,其中值可以是其他基本数据类型.
 属性节点存储的是动态属性.
 
 ### 属性节点之间是什么结构
-属性节点形成的是属性树
+Category之间形成的是一个偏序集.
