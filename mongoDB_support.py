@@ -1,22 +1,14 @@
-import os
-# from pymongo import 
-# from gridfs import 
-# from bson.code import 
-# from pymongo.errors import ConfigurationError
-# import some packges
-
-
-class File:
-    def __init__(self):
-        self.length=0
-    
-    def seek(self, offset, os_SEEK_SET):
-        return []
-    
-    def read(self, size):
-        data=''
-        return data
-
-def get_file(node_id):
-    file= File()
-    return file
+from pymongo import MongoClient  
+from bson.objectid import ObjectId  
+from gridfs import *
+def read(file_id,offset,size):  
+    client = MongoClient()  
+    db = client.gdbfs 
+    fs = GridFS(db, 'col') 
+    file = fs.get_version(file_id, 0)  
+    if file:
+	file.seek(offset)
+	return file.read(size)
+    else:
+	print("connot find this file!")
+	exit(-1)
