@@ -26,23 +26,36 @@ MongoDB是一个介于关系数据库和非关系数据库之间的产品，是�
 	MongoDB包下载地址：http://www.mongodb.org/downloads
 	首先要从官网上下载你所需要的安装包
 	在文件夹里创建mongoDB文件夹，命令如下：
+
 　　　	cd usr/local/ 
+
 	mkdir mongoDB
+
 	cd mongoDB/
 	然后将在上面下载的mongoDB包复制到mongoDB文件夹里面，并且将包解压，解压之后命名为mongoDB
-	eg： tar -zxvf mongodb-linux-x86_64-3.2.8.tgz 
-	     mv mongodb-linux-x86_64-3.2.8 mongodb
+	eg:
+	tar -zxvf mongodb-linux-x86_64-3.2.8.tgz 
+	     
+	mv mongodb-linux-x86_64-3.2.8 mongodb
+
 	解压之后跳转到mongodb下进行操作(cd mongodb/)
+
 	db文件夹的作用是存放数据库目录，logs文件夹的作用是存放mongoDB的操作日志信息：
-	 mkdir db
+
+	mkdir db
+	
 	mkdir logs
+	
 	添加完成之后，启动mongoDB，验证是否安装成功，这里指定的数据库目录选项为mongodb下创建的db，命令如下：
+	
 	./bin/mongod --dbpath /usr/local/kencery/mongoDB/mongodb/db
 
 	注意：你可能会需要配置.conf文件，详细参数见下衔接：
 	http://blog.csdn.net/fdipzone/article/details/7442162
 	
+
 mongoDB的官方文档给出了很多问题的详细解释：
+
 https://www.mongodb.com/faq?jmp=footer
 
 
