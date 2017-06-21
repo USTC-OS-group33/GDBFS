@@ -41,12 +41,21 @@ class mongo_file:
 
 
 
-	def insert(file_name):
+	def insert(file_name):   #本地上传文件
     		client = MongoClient()  
-    		db = client.test_db
+    		db = client.gdbfs
     		fs = GridFS(db, 'col') 
     		with open (file_name.decode('utf-8'),'rb') as myimage:  
        			data=myimage.read()
        			id = fs.put(data,filename=file_name) 
  
        		return id
+	
+	
+	def existfile(file_id):
+		client = MongoClient()  
+		db = client.gdbfs
+		fs = GridFS(db, 'col') 
+		t=fs.exists(ObjectId(file_id))
+	
+		return t
