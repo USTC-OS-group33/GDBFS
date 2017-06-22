@@ -12,14 +12,14 @@ from gridfs import *
 
 class mongo_file:
 
-	def read(file_name,offset,size):  #读文档
-    		client = MongoClient()  
-    		db = client.gdbfs 
-    		fs = GridFS(db, 'col') 
-   		file = fs.get_version(file_id, 0) 
+	def read(self, file_name,offset,size): 
 
- 
-    		if file:
+		client = MongoClient()  
+		db = client.gdbfs 
+		fs = GridFS(db, 'col') 
+		file = fs.get_version(file_name, 0) 
+
+ 		if file:
 			file.seek(offset)
 			return file.read(size)
 			#返回文件内容
@@ -31,17 +31,18 @@ class mongo_file:
 
 
 
-	def write(data,file_name):   #写文档
-    		client = MongoClient()  
-    		db = client.gdbfs
-    		fs = GridFS(db, 'col') 
-       		id = fs.put(data,filename=file_name)  
+	def write(self, data,file_name): 
 
-       		return id
+		client = MongoClient()  
+		db = client.gdbfs
+		fs = GridFS(db, 'col') 
+		id = fs.put(data,filename=file_name)  
+
+		return id
 
 
 
-	def insert(file_name):
+	def insert(self, file_name):
     		client = MongoClient()  
     		db = client.test_db
     		fs = GridFS(db, 'col') 
@@ -50,3 +51,5 @@ class mongo_file:
        			id = fs.put(data,filename=file_name) 
  
        		return id
+
+

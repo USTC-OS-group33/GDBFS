@@ -14,7 +14,7 @@ from time import time
 import os
 from urlparse import urlparse
 import logging
-#import some packges
+# import some packges
 import GDBFS
 
 class GDBFSfuse(LoggingMixIn, Operations):

@@ -1,12 +1,8 @@
 #-*- coding:utf-8 -*-
 
-#from pymongo import Connection
-#from gridfs import GridFS
-#from bson.code import Code
-#from pymongo.errors import ConfigurationError
-#import some packges 
 import neo4j_support
 import mongoDB_support 
+import neo4jdb
 
 # under mode 'old_style', fuse can only operate on hard relations
 # under mode 'graph', fuse can operate on all relations, but may lead to problems
@@ -14,6 +10,11 @@ fuse_mode = 'old_style'
 
 # search distance
 max_distance = 100
+
+
+# database instance
+Ndb=neo4jdb.neo4jdb()
+Mdb=mongoDB_support.mongo_file()
 
 def get_node_name(path):
     if(path[0] == '/'):
@@ -40,32 +41,38 @@ def stimulate_by_fuse(path):
 
 
 def is_dir(path):
-    node_id = neo4j_support.id_map(path, fuse_mode)
-    ppt = neo4j_support.get_node_properties(node_id)
+    #node_id = neo4j_support.id_map(path, fuse_mode)
+    ppt = neo4jdb.get_node_properties(path)
     print "\n\nin is_dir\npath =",path,"\nppt =",ppt,"\na\n"
     if ppt == 'attribute':
         return True
     else:
         return False
 
-def get_file(path):
-    node_id = neo4j_support.id_map(path, fuse_mode)
-    return mongoDB_support.get_file(node_id)
-
-
 def create_node_fuse(node_property, path):
-    node_id = neo4j_support.id_map(path, fuse_mode)
-    if(node_id != 0):
+    #node_id = neo4j_support.id_map(path, fuse_mode)
+    #if(node_id != 0):
         # object already exist
-        return 0
-    node_id = neo4j_support.generate_new_id(path, node_property)
+    #    return 0
+    #node_id = neo4j_support.generate_new_id(path, node_property)
     if node_property == 'file':
-        mongoDB_support.create(node_id)    
+        Ndb.create_file(path)
+        # make relation
+    else:
+        # node_property == 'attribute'
+        Ndb.create_category(path)
+        # make relation    
     return 1
 
 def write(path, data, offset):
-    node_id = neo4j_support.id_map(path, fuse_mode)
-    mongoDB_support.write(node_id, data, offset)
+    node_id = Ndb.get_file_id(path)
+    if(node_id == 0):
+        # write a empty file
+        node_id = Mdb.write(data, path)
+        # update node_id
+    else:
+        # write with id
+
     return 1
 
     
