@@ -95,7 +95,9 @@ class mongo_file:
     		db = client.gdbfs  
     		fs = GridFS(db, 'col') 
 		#connect 
-    		fs.delete(ObjectId(file_id))  
+    		t=fs.delete(ObjectId(file_id))  
+
+		return t 
 
 
 	def getlist():
@@ -104,8 +106,11 @@ class mongo_file:
 		db = client.gdbfs
 		fs = GridFS(db, 'col')
 		#connect
+
 		t=fs.list()
+
 		return t
+
 
 
 	def Rename(file_id,new_filename):  
@@ -114,8 +119,10 @@ class mongo_file:
     		db = client.gdbfs 
     		col = GridFSBucket(db)
 		#connect
-    		col.rename(ObjectId(file_id),new_filename)
 
+    		t=col.rename(ObjectId(file_id),new_filename)
+
+		return t
 
 	def read_id(file_id,offset,size):
 		#read file by id
@@ -130,4 +137,45 @@ class mongo_file:
 
 		return contents
 	
+
+	def smallfile_write(file_name,data):
+		#it's used to write small data
+		#save memory size
+		my_db = MongoClient().gdbfs
+		col = GridFSBucket(my_db)
+		#connect
+
+		grid_in, file_id = fs.open_upload_stream(
+      			file_name, chunk_size_bytes=4,
+      			metadata={"contentType": "text/plain"})
+		grid_in.write("data I want to store!")
+		grid_in.close()
+
+		return file_id
+
+
+	def write_change(file_id,file_name,data,size,offset):
+		#it is used to change file
+		#replace data
+		client = MongoClient()  
+		db = client.gdbfs 
+    		fs = GridFS(db, 'col') 
+		#connect
+
+    		file = fs.get_version(file_name, 0)  
+    		if file:
+			data_origin=file.read()
+			data_origin[offset:offset+size]=data
+			fs.delete(ObjectId(file_id)) 
+			id = fs.put(data_origin,filename=file_name)  
+
+			return id
+
+    		else:
+		#this file is not existed
+			print("connot find this file!")
+
+			exit(-1)
+
+
 
