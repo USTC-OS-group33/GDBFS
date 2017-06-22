@@ -18,6 +18,7 @@ class mongo_file:
         	client = MongoClient()  
     		db = client.gdbfs 
     		fs = GridFS(db, 'col') 
+		#connect
    		temp = fs.get_version(file_name, 0) 
 
  
@@ -38,6 +39,7 @@ class mongo_file:
     		client = MongoClient()  
     		db = client.gdbfs
     		fs = GridFS(db, 'col') 
+		#connect
        		id = fs.put(data,filename=file_name)  
 
        		return id
@@ -49,6 +51,8 @@ class mongo_file:
     		client = MongoClient()  
     		db = client.gdbfs
     		fs = GridFS(db, 'col') 
+		#connect
+
     		with open (file_name.decode('utf-8'),'rb') as myimage:  
        			data=myimage.read()
        			id = fs.put(data,filename=file_name) 
@@ -61,6 +65,7 @@ class mongo_file:
 		client = MongoClient()  
 		db = client.gdbfs
 		fs = GridFS(db, 'col') 
+		#connect
 		t=fs.exists(ObjectId(file_id))
 	
 		return t
@@ -71,6 +76,7 @@ class mongo_file:
     		client= MongoClient()
     		db = client.gdbfs
     		fs = GridFS(db, 'col')
+		#connect
     		file = fs.get_version(file_name, 0)  
 
     		if file:
@@ -87,14 +93,41 @@ class mongo_file:
 		#删除文件
     		client = MongoClient() 
     		db = client.gdbfs  
-    		fs = GridFS(db, 'col')  
+    		fs = GridFS(db, 'col') 
+		#connect 
     		fs.delete(ObjectId(file_id))  
 
 
 	def getlist():
+		#获取文件列表
 		client = MongoClient()  
 		db = client.gdbfs
 		fs = GridFS(db, 'col')
+		#connect
 		t=fs.list()
 		return t
+
+
+	def Rename(file_id,new_filename):  
+		#重命名
+    		client = MongoClient()  
+    		db = client.gdbfs 
+    		col = GridFSBucket(db)
+		#connect
+    		col.rename(ObjectId(file_id),new_filename)
+
+
+	def read_id(file_id,offset,size):
+		#read file by id
+		my_db = MongoClient().gdbfs
+		col = GridFSBucket(my_db)
+		# Get _id of file to read
+
+		file = open('myfile','wb+')
+		fs.download_to_stream(file_id, file)
+		file.seek(offset)
+		contents = file.read(size)
+
+		return contents
+	
 
