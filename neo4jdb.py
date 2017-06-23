@@ -217,13 +217,25 @@ class neo4jdb():
             self._db.run('MATCH (s:file)-[r]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" SET r.length=%f RETURN r' % (s_name, t_name, new_length) )
             return self.FOUND
 
+    def find_adj_nodes(self, src_name, r_type):
+        adj_node_list = []
+        if r_type == self.D_REL_TYPE:
+            adj_node_list = self._db.run('MATCH (s:file)-[r:D_REL]->(t:file) WHERE s.name=\"%s\" RETURN t.name' % (src_name)).data()
+        elif r_type == self.S_REL_TYPE:
+            adj_node_list = self._db.run('MATCH (s:file)-[r:S_REL]->(t:file) WHERE s.name=\"%s\" RETURN t' % (src_name)).data()
+        else:
+            pass
+        for k in range(len(adj_node_list)):
+            adj_node_list[k] = adj_node_list[k][u't.name']
+        return adj_node_list
 
 
 if __name__ == '__main__':
 
     G = neo4jdb()
-    G.cli()
+    # G.cli()
 
     # print(G.get_node_label("Stu"))
     # print(G.get_file_id("Zhang"))
     # G.change_relation("Zhang", "Bi", 0)
+    print(G.find_adj_nodes("Zhang", G.D_REL_TYPE))
