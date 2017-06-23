@@ -10,6 +10,12 @@ import uuid
 # Base Operations
 class neo4jdb():
 
+    MAX_LENGTH = 1e9
+    D_REL_TYPE = 1
+    S_REL_TYPE = 0
+    NOT_FOUND = -1
+    FOUND = 0
+
 
     def __init__(self, **kwargs):
         # login
@@ -57,12 +63,15 @@ class neo4jdb():
             elif command[0] == 'find':
                 self.find_file(*command[1:])
 
+            elif command[0] == 'chrl':
+                self.change_relationship(*command[1:])
+
             elif command[0] == 'exit':
                 break
 
 
     def create_file(self, *file_name):
-        file_nodes = frozenset([Node('file', name=x, id=uuid.uuid3(uuid.NAMESPACE_URL, x)) for x in file_name])
+        file_nodes = frozenset([Node('file', name=x, id=0) for x in file_name])
         self._db.create(Subgraph(file_nodes))
 
     def create_category(self, *category_name):
@@ -99,6 +108,9 @@ class neo4jdb():
         relationships = self._db.run('MATCH (a:file)-[r:IS_A]->(b:category) RETURN r').data()
         for relation in relationships:
             print ('\t', relation['r'])
+        relationships = self._db.run('MATCH (a:file)-[r:D_REL]->(b:file) RETURN r').data()
+        for relation in relationships:
+            print('\t', relation['r'])
 
     def change_category(self, *cmd):
         add_categories = []
@@ -140,10 +152,78 @@ class neo4jdb():
         eval_str = ' '.join(eval_lst)
         print (eval(eval_str))
 
+    def change_relationship(self, *cmd):
+
+        flags = ['+', '-']
+        op = None
+        pos = None
+        rname = None
+        for i in range(len(cmd)):
+            if cmd[i][0] in flags:
+                pos = i
+                rname = cmd[i][1:]
+                op = cmd[i][0]
+        if op == '+':
+            if pos == 1:
+                # src_node = self._db.run('MATCH (f:file) WHERE f.name=\"%s\" RETURN f' % cmd[0]).data()
+                for fname in cmd[2:]:
+                    # dst_node = self._db.run('MATCH (f:file) WHERE f.name=\"%s\" RETURN f' % fname).data()
+                    self._db.run('MATCH (s:file),(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" CREATE (s)-[r:D_REL {name:\"%s\"}]->(t) RETURN r' % (cmd[0],fname,rname))
+            elif pos == len(cmd) - 2:
+                for fname in cmd[0:pos]:
+                    self._db.run('MATCH (s:file),(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" CREATE (s)-[r:D_REL {name:\"%s\"}]->(t) RETURN r' % (fname, cmd[-1], rname))
+            else:
+                pass
+        else:
+            if pos == 1:
+                # src_node = self._db.run('MATCH (f:file) WHERE f.name=\"%s\" RETURN f' % cmd[0]).data()
+                for fname in cmd[2:]:
+                    # dst_node = self._db.run('MATCH (f:file) WHERE f.name=\"%s\" RETURN f' % fname).data()
+                    self._db.run('MATCH (s:file)-[r:D_REL]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" AND r.name=\"%s\" DELETE  r' % (cmd[0],fname,rname))
+            elif pos == len(cmd) - 2:
+                for fname in cmd[0:pos]:
+                    self._db.run('MATCH (s:file)-[r:D_REL]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" AND r.name=\"%s\" DELETE  r' % (fname, cmd[-1], rname))
+            else:
+                pass
+
+
+    def get_node_label(self, node_name):
+        node_label = self._db.run('MATCH (n) WHERE n.name=\"%s\" RETURN labels(n)' % (node_name)).data()[0][u'labels(n)'][0]
+        return node_label
+
+    def get_file_id(self, fname):
+        fid = self._db.run('MATCH (f:file) WHERE f.name=\"%s\" RETURN f.id' % (fname)).data()[0][u'f.id']
+        return fid
+
+    def create_relation(self, s_name, t_name, r_type, init_value):
+        if r_type == self.D_REL_TYPE:
+            self._db.run('MATCH (s:file),(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" CREATE (s)-[r:D_REL {length:%f}]->(t) RETURN r' % (s_name, t_name, init_value))
+        elif r_type == self.S_REL_TYPE:
+            self._db.run('MATCH (s:file),(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" CREATE (s)-[r:S_REL {length:%f}]->(t) RETURN r' % (s_name, t_name, init_value))
+        else:
+            pass
+
+    def delete_relation(self, s_name, t_name, r_type):
+        if r_type == self.D_REL_TYPE:
+            self._db.run('MATCH (s:file)-[r:D_REL]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\"  DELETE  r' % (s_name, t_name))
+        elif r_type == self.S_REL_TYPE:
+            self._db.run('MATCH (s:file)-[r:S_REL]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\"  DELETE  r' % (s_name, t_name))
+
+    def change_relation(self, s_name, t_name, new_length):
+        exist = self._db.run('OPTIONAL MATCH (s:file)-[r]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" RETURN r' % (s_name, t_name)).data()[0][u'r']
+        if exist == None:
+            return self.NOT_FOUND
+        else:
+            self._db.run('MATCH (s:file)-[r]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" SET r.length=%f RETURN r' % (s_name, t_name, new_length) )
+            return self.FOUND
 
 
 
 if __name__ == '__main__':
 
     G = neo4jdb()
-    G.cli()
+    # G.cli()
+
+    # print(G.get_node_label("Stu"))
+    # print(G.get_file_id("Zhang"))
+    G.change_relation("Zhang", "Bi", 0)
