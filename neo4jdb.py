@@ -1,3 +1,4 @@
+
 from __future__ import print_function
 from py2neo import *
 import sys
@@ -19,7 +20,7 @@ class neo4jdb():
 
     def __init__(self, **kwargs):
         # login
-        authenticate('localhost:7474', 'neo4j', '970316')
+        authenticate('localhost:7474', 'neo4j', '123456')
         self._db = Graph()
 
 
@@ -239,7 +240,11 @@ class neo4jdb():
 if __name__ == '__main__':
 
     G = neo4jdb()
+<<<<<<< Updated upstream
     # G.cli()
+=======
+    #G.cli()
+>>>>>>> Stashed changes
 
     # print(G.get_node_label("Stu"))
     # print(G.get_file_id("Zhang"))

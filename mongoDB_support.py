@@ -99,22 +99,21 @@ class mongo_file:
 		return t
 
 
-	def length(file_name):  
+	def length(self, file_name):  
 		#获得文件大小
-    		client= MongoClient()
-    		db = client.gdbfs
-    		fs = GridFS(db, 'col')
+		client= MongoClient()
+		db = client.gdbfs
+		fs = GridFS(db, 'col')
 		#connect
-    		file = fs.get_version(file_name, 0)  
+		file = fs.get_version(file_name, 0)  
 
-    		if file:
+		if file:
 			return file.length
-
-    		else :
-    		#找不到文件	
+		else :
+    		#找不到文件		
 			print("this file doesn't exist! please check it again!")
-
-			exit(-1)
+		
+		exit(-1)
 
 
 	def delFile(file_id):  

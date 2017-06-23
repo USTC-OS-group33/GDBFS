@@ -33,9 +33,15 @@ class GDBFSfuse(LoggingMixIn, Operations):
         if path == '/' or GDBFS.is_dir(path):
             st = dict(st_mode=(S_IFDIR | 0755), st_nlink=2)
         else:
-            file = GDBFS.get_file(path)
-            if file.is_exist():
-                st = dict(st_mode=(S_IFREG | 0444), st_size=file.length())
+            # file = GDBFS.get_file(path)
+            if len(GDBFS.Ndb.get_node_label(GDBFS.get_node_name(path)))!=0:
+                filesize=0
+                try:
+                    filesize=GDBFS.get_file_length(path)
+                except:
+                    filesize=0
+
+                st = dict(st_mode=(S_IFREG | 0755), st_size=filesize)
             else:
                 raise FuseOSError(ENOENT)
         st['st_ctime'] = st['st_mtime'] = st['st_atime'] = time()
@@ -45,24 +51,30 @@ class GDBFSfuse(LoggingMixIn, Operations):
 
     def read(self, path, size, offset, fh):
         print "\n\nin fuse read, fh =", fh
-        file = GDBFS.get_file(path)
-        os_SEEK_SET = 0       # 这里由样例可查具体是 os.SEEK_SET 应该是mongoDB支持的，这里只是代替一写
-        if file.is_exist():
-            data = file.read(size, offset)
-            print "\n\nfuse read:",data
-            return data
-        else:
-            raise FuseOSError(ENOENT)
+        #file = GDBFS.get_file(path)
+        #os_SEEK_SET = 0       # 这里由样例可查具体是 os.SEEK_SET 应该是mongoDB支持的，这里只是代替一写
+        #if file.is_exist():
+        data = GDBFS.Mdb.read(path,offset,size)
+            #print "\n\nfuse read:",data
+        return data
+        #else:
+        #    raise FuseOSError(ENOENT)
 
     def create(self, path, mode):
+        print "\n\n\nin creat, path=",path,"\nend\n\n"
         return GDBFS.create_node_fuse('file', path)
 
     def mkdir(self, path, mode):
-        GDBFS.create_node_fuse('attribute', path)
+        print "\n\n\nin mkdir, path=",path,"\nend\n\n"
+        GDBFS.create_node_fuse('category', path)
 
     def write(self, path, data, offset, fh):
         GDBFS.write(path,data,offset)
+        #GDBFS.create_node_fuse('file', path)
         return len(data)
+
+    def chmod(self, path, mode):
+        return 0
 
 
     # Disable unused operations:
