@@ -108,7 +108,10 @@ class neo4jdb():
         relationships = self._db.run('MATCH (a:file)-[r:IS_A]->(b:category) RETURN r').data()
         for relation in relationships:
             print ('\t', relation['r'])
-        relationships = self._db.run('MATCH (a:file)-[r:D_REL]->(b:file) RETURN r').data()
+        relationships = self._db.run('MATCH (a)-[r:D_REL]->(b) RETURN r').data()
+        for relation in relationships:
+            print('\t', relation['r'])
+        relationships = self._db.run('MATCH (a)-[r:S_REL]->(b) RETURN r').data()
         for relation in relationships:
             print('\t', relation['r'])
 
@@ -197,32 +200,32 @@ class neo4jdb():
 
     def create_relation(self, s_name, t_name, r_type, init_value):
         if r_type == self.D_REL_TYPE:
-            self._db.run('MATCH (s:file),(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" CREATE (s)-[r:D_REL {length:%f}]->(t) RETURN r' % (s_name, t_name, init_value))
+            self._db.run('MATCH (s),(t) WHERE s.name=\"%s\" AND t.name=\"%s\" CREATE (s)-[r:D_REL {length:%f}]->(t) RETURN r' % (s_name, t_name, init_value))
         elif r_type == self.S_REL_TYPE:
-            self._db.run('MATCH (s:file),(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" CREATE (s)-[r:S_REL {length:%f}]->(t) RETURN r' % (s_name, t_name, init_value))
+            self._db.run('MATCH (s),(t) WHERE s.name=\"%s\" AND t.name=\"%s\" CREATE (s)-[r:S_REL {length:%f}]->(t) RETURN r' % (s_name, t_name, init_value))
         else:
             pass
 
     def delete_relation(self, s_name, t_name, r_type):
         if r_type == self.D_REL_TYPE:
-            self._db.run('MATCH (s:file)-[r:D_REL]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\"  DELETE  r' % (s_name, t_name))
+            self._db.run('MATCH (s)-[r:D_REL]->(t) WHERE s.name=\"%s\" AND t.name=\"%s\"  DELETE  r' % (s_name, t_name))
         elif r_type == self.S_REL_TYPE:
-            self._db.run('MATCH (s:file)-[r:S_REL]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\"  DELETE  r' % (s_name, t_name))
+            self._db.run('MATCH (s)-[r:S_REL]->(t) WHERE s.name=\"%s\" AND t.name=\"%s\"  DELETE  r' % (s_name, t_name))
 
     def change_relation(self, s_name, t_name, new_length):
-        exist = self._db.run('OPTIONAL MATCH (s:file)-[r]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" RETURN r' % (s_name, t_name)).data()[0][u'r']
+        exist = self._db.run('OPTIONAL MATCH (s)-[r]->(t) WHERE s.name=\"%s\" AND t.name=\"%s\" RETURN r' % (s_name, t_name)).data()[0][u'r']
         if exist == None:
             return self.NOT_FOUND
         else:
-            self._db.run('MATCH (s:file)-[r]->(t:file) WHERE s.name=\"%s\" AND t.name=\"%s\" SET r.length=%f RETURN r' % (s_name, t_name, new_length) )
+            self._db.run('MATCH (s)-[r]->(t) WHERE s.name=\"%s\" AND t.name=\"%s\" SET r.length=%f RETURN r' % (s_name, t_name, new_length) )
             return self.FOUND
 
     def find_adj_nodes(self, src_name, r_type):
         adj_node_list = []
         if r_type == self.D_REL_TYPE:
-            adj_node_list = self._db.run('MATCH (s:file)-[r:D_REL]->(t:file) WHERE s.name=\"%s\" RETURN t.name' % (src_name)).data()
+            adj_node_list = self._db.run('MATCH (s)-[r:D_REL]->(t) WHERE s.name=\"%s\" RETURN t.name' % (src_name)).data()
         elif r_type == self.S_REL_TYPE:
-            adj_node_list = self._db.run('MATCH (s:file)-[r:S_REL]->(t:file) WHERE s.name=\"%s\" RETURN t' % (src_name)).data()
+            adj_node_list = self._db.run('MATCH (s)-[r:S_REL]->(t) WHERE s.name=\"%s\" RETURN t' % (src_name)).data()
         else:
             pass
         for k in range(len(adj_node_list)):
@@ -238,4 +241,6 @@ if __name__ == '__main__':
     # print(G.get_node_label("Stu"))
     # print(G.get_file_id("Zhang"))
     # G.change_relation("Zhang", "Bi", 0)
-    print(G.find_adj_nodes("Zhang", G.D_REL_TYPE))
+    G.create_relation("Zhang", "Stu", G.D_REL_TYPE, 500)
+    G.cli()
+    # print(G.find_adj_nodes("Zhang", G.D_REL_TYPE))
