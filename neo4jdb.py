@@ -191,8 +191,11 @@ class neo4jdb():
 
 
     def get_node_label(self, node_name):
-        node_label = self._db.run('MATCH (n) WHERE n.name=\"%s\" RETURN labels(n)' % (node_name)).data()[0][u'labels(n)'][0]
-        return node_label
+        node_label = self._db.run('MATCH (n) WHERE n.name=\"%s\" RETURN labels(n)' % (node_name)).data()
+        if len(node_label) == 0:
+            return []
+        else:
+            return node_label[0][u'labels(n)'][0]
 
     def get_file_id(self, fname):
         fid = self._db.run('MATCH (f:file) WHERE f.name=\"%s\" RETURN f.id' % (fname)).data()[0][u'f.id']
@@ -225,7 +228,7 @@ class neo4jdb():
         if r_type == self.D_REL_TYPE:
             adj_node_list = self._db.run('MATCH (s)-[r:D_REL]->(t) WHERE s.name=\"%s\" RETURN t.name' % (src_name)).data()
         elif r_type == self.S_REL_TYPE:
-            adj_node_list = self._db.run('MATCH (s)-[r:S_REL]->(t) WHERE s.name=\"%s\" RETURN t' % (src_name)).data()
+            adj_node_list = self._db.run('MATCH (s)-[r:S_REL]->(t) WHERE s.name=\"%s\" RETURN t.name' % (src_name)).data()
         else:
             pass
         for k in range(len(adj_node_list)):
@@ -241,6 +244,7 @@ if __name__ == '__main__':
     # print(G.get_node_label("Stu"))
     # print(G.get_file_id("Zhang"))
     # G.change_relation("Zhang", "Bi", 0)
-    G.create_relation("Zhang", "Stu", G.D_REL_TYPE, 500)
-    G.cli()
+    # G.create_relation("Zhang", "Stu", G.D_REL_TYPE, 500)
+    # G.cli()
     # print(G.find_adj_nodes("Zhang", G.D_REL_TYPE))
+    print (G.get_node_label("Stu"))
