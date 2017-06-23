@@ -240,11 +240,7 @@ class neo4jdb():
 if __name__ == '__main__':
 
     G = neo4jdb()
-<<<<<<< Updated upstream
-    # G.cli()
-=======
     #G.cli()
->>>>>>> Stashed changes
 
     # print(G.get_node_label("Stu"))
     # print(G.get_file_id("Zhang"))

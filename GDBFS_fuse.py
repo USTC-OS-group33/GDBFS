@@ -41,7 +41,7 @@ class GDBFSfuse(LoggingMixIn, Operations):
                 except:
                     filesize=0
 
-                st = dict(st_mode=(S_IFREG | 0755), st_size=filesize)
+                st = dict(st_mode=(S_IFREG | 0644), st_size=filesize)
             else:
                 raise FuseOSError(ENOENT)
         st['st_ctime'] = st['st_mtime'] = st['st_atime'] = time()
