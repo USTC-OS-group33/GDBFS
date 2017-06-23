@@ -222,8 +222,8 @@ class neo4jdb():
 if __name__ == '__main__':
 
     G = neo4jdb()
-    # G.cli()
+    G.cli()
 
     # print(G.get_node_label("Stu"))
     # print(G.get_file_id("Zhang"))
-    G.change_relation("Zhang", "Bi", 0)
+    # G.change_relation("Zhang", "Bi", 0)
