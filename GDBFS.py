@@ -43,6 +43,7 @@ def stimulate_by_fuse(path):
     if path == "/":
         return ["root","demo"]
     if path=="/demo":
+        client_pos = Ndb._db.run('MATCH (p:path) RETURN p.name').data()[0][u'p.name']
         return Ndb.find_adj_nodes(client_pos,Ndb.S_REL_TYPE)
     if fuse_mode == 'old_style':
         # node_id = neo4j_support.id_map(path, 'old_style')

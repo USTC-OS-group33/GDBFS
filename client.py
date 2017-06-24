@@ -1,7 +1,6 @@
 from __future__ import print_function
 from py2neo import *
 import sys
-import GDBFS
 import neo4jdb
 
 class client():
@@ -18,5 +17,11 @@ class client():
 
         while True:
             print ('>>>', end='')
-            path = sys.stdin.readline()
-            self.ndb._db.run('MATCH (p:path) SET p.name=\"%s\"' % (path))
+            input = sys.stdin.readline().strip('\n')
+            if input == 'exit':
+                break
+            self.ndb._db.run('MATCH (p:path) SET p.name=\"%s\"' % (input))
+
+if __name__ == '__main__':
+    clt = client()
+    clt.change_demo_path()
