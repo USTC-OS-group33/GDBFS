@@ -16,6 +16,8 @@ max_distance = 100
 Ndb=neo4jdb.neo4jdb()
 Mdb=mongoDB_support.mongo_file()
 
+
+
 def get_node_name(path):
     if(path[0] == '/' and len(path)>1):
         path_list = path.split('/')
@@ -40,6 +42,8 @@ def get_parent(path):
 def stimulate_by_fuse(path):
     if path == "/":
         return ["root","demo"]
+    if path=="/demo":
+        return Ndb.find_adj_nodes(client_pos,Ndb.S_REL_TYPE)
     if fuse_mode == 'old_style':
         # node_id = neo4j_support.id_map(path, 'old_style')
         name_ls = Ndb.find_adj_nodes(get_node_name(path),Ndb.S_REL_TYPE)
