@@ -27,8 +27,8 @@ MongoDB是一个介于关系数据库和非关系数据库之间的产品，是�
 	首先要从官网上下载你所需要的安装包
 	在文件夹里创建mongoDB文件夹，命令如下：
 
-　　　	cd usr/local/ 
-
+　　　	
+	cd usr/local/ 
 	mkdir mongoDB
 
 	cd mongoDB/
@@ -60,7 +60,7 @@ https://www.mongodb.com/faq?jmp=footer
 
 
 
-### pymongo的应用
+## pymongo的应用
 
 这里调用了pymongo还有gridfs。
 pymongo是用来连接mongoDB数据库，gridfs是用来存放大型文件。
@@ -74,7 +74,22 @@ pymongo是用来连接mongoDB数据库，gridfs是用来存放大型文件。
 gridfs在pymongo文档中有提到：
 http://api.mongodb.com/python/current/api/gridfs/#module-gridfs
 
-我们通过调用gridfs完成读，写等基本操作。
+我们通过调用gridfs完成文件读，写等基本操作。
+
+
+##IO测试
+
+数据库最大的优势在于其并发性，但是读写效率可能会有所降低，这里调用Python多线程来测试读，写不存在并发性，只能测其效率。
+单线程、多线程和多进程的效率对比实验如下，这里有详细且具体的说明：
+
+http://www.sohu.com/a/126409809_487512
+
+
+从理论上来说，数据库可能在并发线程增加的时候其效率增加幅度大于pc文件系统，在并发线程较小的时候效率可能会低于文件系统
+最后得到的结果是自洽的。
+
+
+
 
 
 
