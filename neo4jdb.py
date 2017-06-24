@@ -20,7 +20,7 @@ class neo4jdb():
 
     def __init__(self, **kwargs):
         # login
-        authenticate('localhost:7474', 'neo4j', '123456')
+        authenticate('localhost:7474', 'neo4j', '970316')
         self._db = Graph()
 
 
@@ -45,8 +45,10 @@ class neo4jdb():
             elif command[0] == 'rm':
                 if len(command) > 1 and command[1] == '-a':
                     self.remove_all_node()
-                else:
-                    self.remove_file(*command[1:])
+                elif len(command) > 1 and command[1] == '-f':
+                    self.remove_file(*command[2:])
+                elif len(command) > 1 and command[1] == '-l':
+                    self.remove_label(*command[2:])
 
             elif command[0] == 'rmpt':
                 self.remove_category(*command[1:])
@@ -67,6 +69,9 @@ class neo4jdb():
             elif command[0] == 'chrl':
                 self.change_relationship(*command[1:])
 
+            elif command[0] == 'mklb':
+                self.create_label(*command[1:])
+
             elif command[0] == 'exit':
                 break
 
@@ -74,6 +79,10 @@ class neo4jdb():
     def create_file(self, *file_name):
         file_nodes = frozenset([Node('file', name=x, id=0) for x in file_name])
         self._db.create(Subgraph(file_nodes))
+
+    def create_label(self, *label_name):
+        nodes = frozenset([Node(x, name=x, id=0) for x in label_name])
+        self._db.create(Subgraph(nodes))
 
     def create_category(self, *category_name):
         category_nodes = frozenset([Node('category', name=x) for x in category_name])
@@ -85,6 +94,11 @@ class neo4jdb():
     def remove_file(self, *file_name):
         file_nodes = frozenset([self._db.run('MATCH (p:file) WHERE p.name=\"%s\" RETURN p' % (name)).data()[0]['p'] for name in file_name])
         self._db.delete(Subgraph(file_nodes))
+
+    def remove_label(self, *label_name):
+        nodes = frozenset([self._db.run('MATCH (p:%s) RETURN p' % (name)).data()[0]['p'] for name in label_name])
+        self._db.delete(Subgraph(nodes))
+
 
     def remove_category(self, *category_name):
         category_nodes = frozenset([self._db.run('MATCH (p:category) WHERE p.name=\"%s\" RETURN p' % (name)).data()[0]['p'] for name in category_name])
@@ -115,6 +129,15 @@ class neo4jdb():
         relationships = self._db.run('MATCH (a)-[r:S_REL]->(b) RETURN r').data()
         for relation in relationships:
             print('\t', relation['r'])
+
+        print ('\n')
+
+        print('path:')
+        file_nodes = self._db.run('MATCH (p:path) RETURN p').data()
+        for node in file_nodes:
+            print('\t', node['p']['name'])
+
+        print('\n')
 
     def change_category(self, *cmd):
         add_categories = []
@@ -234,22 +257,11 @@ class neo4jdb():
             pass
         for k in range(len(adj_node_list)):
             adj_node_list[k] = adj_node_list[k][u't.name']
+
         return adj_node_list
 
 
 if __name__ == '__main__':
 
     G = neo4jdb()
-<<<<<<< Updated upstream
-    # G.cli()
-=======
-    #G.cli()
->>>>>>> Stashed changes
-
-    # print(G.get_node_label("Stu"))
-    # print(G.get_file_id("Zhang"))
-    # G.change_relation("Zhang", "Bi", 0)
-    # G.create_relation("Zhang", "Stu", G.D_REL_TYPE, 500)
-    # G.cli()
-    # print(G.find_adj_nodes("Zhang", G.D_REL_TYPE))
-    print (G.get_node_label("Stu"))
+    G.cli()
